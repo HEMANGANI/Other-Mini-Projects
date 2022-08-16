@@ -1,0 +1,36 @@
+# import the required libraries
+
+import io
+import random
+import warnings
+
+import pandas             as pd
+import numpy              as np
+import seaborn            as sns
+import matplotlib.pyplot  as plt
+
+from math         import sqrt
+from pylab        import rcParams
+from numpy        import std, mean, median, percentile
+from matplotlib   import pyplot
+from sklearn      import preprocessing, feature_selection
+from pandas       import read_csv
+
+from google.colab                 import files
+from sklearn.model_selection      import train_test_split, RepeatedStratifiedKFold, cross_val_score, GridSearchCV
+from sklearn.linear_model         import LogisticRegression, SGDClassifier
+from sklearn.datasets             import make_classification
+from sklearn.preprocessing        import LabelEncoder, StandardScaler, MinMaxScaler, KBinsDiscretizer
+from sklearn.metrics              import roc_curve, roc_auc_score, confusion_matrix, precision_recall_curve, auc, accuracy_score, f1_score, log_loss, recall_score
+from sklearn.feature_selection    import f_classif
+from sklearn.neighbors            import KNeighborsClassifier
+from sklearn.pipeline             import Pipeline
+from sklearn.calibration          import CalibratedClassifierCV
+from sklearn.base                 import BaseEstimator, TransformerMixin
+from scipy.stats                  import chi2_contingency, skew, kurtosis, entropy
+
+#warnings.filterwarnings('ignore')
+#np.set_printoptions(formatter={'float': lambda x: "{0:0.4f}".format(x)})
+#pd.set_option('display.max_rows',500)
+#pd.set_option('display.max_columns', 200)
+#!pip install category_encoders
