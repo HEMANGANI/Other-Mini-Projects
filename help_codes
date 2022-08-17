@@ -34,3 +34,74 @@ from scipy.stats                  import chi2_contingency, skew, kurtosis, entro
 #pd.set_option('display.max_rows',500)
 #pd.set_option('display.max_columns', 200)
 #!pip install category_encoders
+
+###---###
+
+def classify(model,X,Y,threshold):
+    model.fit(X,Y)
+    train_pred = model.predict(X)
+    yhat = model.predict_proba(X)
+    for i in range(0,len(yhat)):
+        if (yhat[i][1] >= threshold):
+            train_pred[i]=1
+            #print(yhat[i])
+        else:
+            train_pred[i]=0
+    print("Result while taking threshold = ",round(threshold,3))       
+    cm = confusion_matrix(Y, train_pred)
+    print("Training_accuracy of the model is " ,round(accuracy_score(Y, train_pred),4))
+    print("F1_SCORE = " ,round(f1_score(Y,train_pred),4))
+    print("Recall_score = " ,round(recall_score(Y,train_pred),4))
+    #print("\n")
+    print("Confusion Matrix :-")
+    print('             Predicted No: Predicted Yes:')
+    print('Actual No  :       ',cm[0][0],'        ',cm[0][1])
+    print('Actual Yes :       ',cm[1][0],'        ',cm[1][1])
+    print("\n")
+    #print("Probabilities of all yes that are predicted wrongly in the formate of [Prob_0, Prob_1]: ")
+    '''for i in range(0,len(train_pred)):
+        if Y[i] != train_pred[i] and Y[i] == 1:
+            print(yhat[i])'''
+
+def feature_p_value(X,Y):
+    # assuming no mising values in dataset
+    # define an empty dictionary to store chi-test results
+    chi2_check = {}
+    # loop over each column in the encoded training set to calculate chi statistic with the target variable
+    for column in X:
+        chi, p, dof, ex = chi2_contingency(pd.crosstab(Y, X[column]))
+        chi2_check.setdefault('Feature',[]).append(column)
+        chi2_check.setdefault('p-value',[]).append(p)
+    # convert the dictionary to a DF
+    chi2_result = pd.DataFrame(data = chi2_check)
+    # select the top 4 features based on lowest p values
+    top4_chi2 = chi2_result.nsmallest( 20,'p-value')['Feature'].tolist()
+
+    # filter out these shortlisted features into new DFs
+    X_train_fs = X[top4_chi2]
+    X_test_fs = X[top4_chi2]
+
+    # convert to shortlisted feature DFs into dummy variables
+    X_train_enc = pd.get_dummies(X_train_fs)
+    X_test_enc = pd.get_dummies(X_test_fs)
+    # reindex the dummied test set variables to make sure all the feature columns in the train set are also available in the test set
+    X_test_enc = X_test_enc.reindex(labels=X_train_enc.columns, axis=1, fill_value=0)
+
+    # instantiate the LabelEncoder class to transform target variable
+    le = LabelEncoder()
+    # fit the LabelEncoder class on training set
+    le.fit(Y)
+    # transform training and test target variables and convert to DFs
+    y_train_enc = le.transform(Y)
+    y_test_enc = le.transform(Y)
+
+    # define classification algorithm
+    model = LogisticRegression()
+    # fit the model
+    model.fit(X_train_enc, y_train_enc)
+    # predict
+    yhat = model.predict(X_test_enc)
+    # evaluate predictions
+    accuracy = accuracy_score(y_test_enc, yhat)
+    print('Accuracy: %.2f' % (accuracy*100))
+    print(round(chi2_result.nsmallest(24,'p-value'),4))
