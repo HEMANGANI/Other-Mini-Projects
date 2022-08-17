@@ -105,3 +105,23 @@ def feature_p_value(X,Y):
     accuracy = accuracy_score(y_test_enc, yhat)
     print('Accuracy: %.2f' % (accuracy*100))
     print(round(chi2_result.nsmallest(24,'p-value'),4))
+    
+###---###
+
+classfier_LR  = LogisticRegression(max_iter=1000,penalty='l2',class_weight='auto') 
+
+from xgboost.sklearn import XGBClassifier, XGBRegressor  
+classfier_XGB = XGBClassifier()
+
+from sklearn.tree import DecisionTreeClassifier
+classfier_DT  = DecisionTreeClassifier()
+
+from sklearn.ensemble import RandomForestClassifier
+classfier_RF  = RandomForestClassifier(n_estimators=500, bootstrap = True, max_features = 'sqrt', random_state = 1, max_depth = 15, min_samples_split = 2, min_samples_leaf = 1)
+
+classify(classfier_LR,X,Y_default,0.5) 
+features = np.array(X.columns)
+feature_importance=pd.DataFrame(np.hstack((np.array([features]).T, classfier_LR.coef_.T)), columns=['feature', 'importance'])
+feature_importance['importance']=pd.to_numeric(feature_importance['importance'])
+feature_importance.sort_values(by='importance', ascending=False).head(5)
+
